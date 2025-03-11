@@ -40,11 +40,12 @@
       }
 
       try {
-        // Fetch the document from Firestore
+        console.log('Fetching student with ID:', studentId); // Debugging
         const studentDoc = await getDoc(doc(db, 'students', studentId));
+        console.log('Document data:', studentDoc.data()); // Debugging
+
         if (studentDoc.exists()) {
           const studentData = studentDoc.data();
-          // Display the student data
           document.getElementById('studentData').innerHTML = `
             <p>Name: ${studentData.name}</p>
             <p>Grade: ${studentData.grade}</p>
