@@ -70,8 +70,13 @@
             <p>Marks: ${studentData.marks}</p>
           `;
 
-          // Display semester name and course table
-          displayCourseTable(studentData.courses, studentData.semester);
+          // Check if courses array exists
+          if (studentData.courses && Array.isArray(studentData.courses)) {
+            displayCourseTable(studentData.courses, studentData.semester);
+          } else {
+            console.error('Courses data is missing or invalid.');
+            document.getElementById('studentData').innerHTML += '<p>No course data available.</p>';
+          }
         } else {
           document.getElementById('studentData').innerHTML = '<p>No student found with this ID.</p>';
         }
