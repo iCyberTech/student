@@ -5,27 +5,164 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Website</title>
   <style>
+    /* General Styles */
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-top: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Search Section */
+    .search-section {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    #studentId {
+      padding: 10px;
+      width: 300px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    /* Student Data Section */
+    #studentData {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin-top: 20px;
+    }
+
+    #studentData p {
+      font-size: 18px;
+      margin: 10px 0;
+    }
+
+    #studentData h3 {
+      color: #2c3e50;
+      margin-top: 20px;
+    }
+
+    /* Table Styles */
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
     }
+
     th, td {
       border: 1px solid #ddd;
-      padding: 8px;
+      padding: 12px;
       text-align: left;
     }
+
     th {
-      background-color: #f2f2f2;
+      background-color: #3498db;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    /* Download Button */
+    .download-button {
+      margin-top: 20px;
+      background-color: #27ae60;
+    }
+
+    .download-button:hover {
+      background-color: #219653;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .search-section {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      #studentId {
+        width: 100%;
+      }
+
+      button {
+        width: 100%;
+      }
+
+      table {
+        font-size: 14px;
+      }
+
+      th, td {
+        padding: 8px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 24px;
+      }
+
+      #studentData p {
+        font-size: 16px;
+      }
+
+      #studentData h3 {
+        font-size: 18px;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>View Student Data</h1>
-  <input type="text" id="studentId" placeholder="Enter Student ID">
-  <button onclick="fetchStudentData()">Search</button>
-  <div id="studentData"></div>
+  <div class="container">
+    <h1>View Student Data</h1>
+    <div class="search-section">
+      <input type="text" id="studentId" placeholder="Enter Student ID">
+      <button onclick="fetchStudentData()">Search</button>
+    </div>
+    <div id="studentData"></div>
+  </div>
 
+  <!-- Include html2canvas library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script type="module">
     // Import Firebase SDK
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
@@ -46,6 +183,8 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    let studentData = null; // Store student data globally
+
     // Fetch student data by ID
     window.fetchStudentData = async function () {
       const studentId = document.getElementById('studentId').value;
@@ -60,14 +199,15 @@
         console.log('Document data:', studentDoc.data()); // Debugging
 
         if (studentDoc.exists()) {
-          const studentData = studentDoc.data();
+          studentData = studentDoc.data(); // Store student data globally
 
           // Display student data
           document.getElementById('studentData').innerHTML = `
-            <p>Name: ${studentData.name}</p>
-            <p>Grade: ${studentData.grade}</p>
-            <p>Attendance: ${studentData.attendance}</p>
-            <p>Marks: ${studentData.marks}</p>
+            <p><strong>Name:</strong> ${studentData.name}</p>
+            <p><strong>Grade:</strong> ${studentData.grade}</p>
+            <p><strong>Attendance:</strong> ${studentData.attendance}</p>
+            <p><strong>Marks:</strong> ${studentData.marks}</p>
+            <button class="download-button" onclick="downloadStudentDataAsImage()">Download Data as Image</button>
           `;
 
           // Check if courses array exists
@@ -127,6 +267,28 @@
       // Add table to the page
       studentDataDiv.innerHTML += tableHTML;
     }
+
+    // Function to download student data as an image
+    window.downloadStudentDataAsImage = function () {
+      if (!studentData) {
+        alert('No student data available to download.');
+        return;
+      }
+
+      // Capture the student data section as an image
+      html2canvas(document.getElementById('studentData')).then(canvas => {
+        // Convert the canvas to an image URL
+        const imageURL = canvas.toDataURL('image/png');
+
+        // Create a download link
+        const link = document.createElement('a');
+        link.href = imageURL;
+        link.download = `${studentData.name}_data.png`;
+        document.body.appendChild(link);
+        link.click(); // Trigger the download
+        document.body.removeChild(link); // Clean up
+      });
+    };
   </script>
 </body>
 </html>
